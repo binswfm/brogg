@@ -1,0 +1,66 @@
+#!/bin/bash
+findHOST(){
+    echo $1|tr "/" " "|awk '{print $2}'
+}
+isNUM(){
+    if [ "$1" -gt 0 ] 2>/dev/null ;then  
+        return 0
+    else  
+        echo 'no.'  
+    fi  
+}
+
+
+
+
+
+TEMP=`getopt -o c:m: --long connect-timeout:,max-timeout: -n 'example.bash' -- "$@"`
+
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+
+# Note the quotes around `$TEMP': they are essential!
+eval set -- "$TEMP"
+
+while true ; do
+    case "$1" in
+        -c|--connect-timeout) 
+            if [ "$2" -gt 0 ] && [ "$2" -le 20 ]  2>/dev/null 
+            then  
+                connect_timeout=$2
+            else  
+                echo 'connect-timeout must be 0-20'>&2   
+                exit 1
+            fi  
+            shift 2
+            ;;
+        -m|--max-timeout)
+            if [ "$2" -gt 0 ] && [ "$2" -le 20 ]  2>/dev/null 
+            then  
+                max_timeout=$2
+            else  
+                echo 'max-timeout must be 0-20'>&2   
+                exit 1
+            fi  
+            shift 2
+            ;;
+        --) shift ; break ;;
+        *) echo "Internal error!" ; exit 1 ;;
+    esac
+done
+
+echo "connect-timeout=$connect_timeout,max-timeout=$max_timeout"
+rm -rf .times
+list=($(awk '{print $1}' list)) 
+for url  in ${list[@]}
+do
+    host=$(findHOST "$url")
+    speed=$(curl -s -m $max_timeout --connect-timeout $connect_timeout -w %{time_total}\\n -o /dev/null $url)
+    if [ $? -eq 0 ]
+    then
+        echo "$speed $url" >> .times
+    fi
+done
+sort -n -u  .times
+google=$(sort -n -u .times | head -1|awk '{print $2}'|tr -d '\n')
+xdg-open $google  &
+rm -rf .times
