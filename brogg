@@ -12,6 +12,8 @@ isNUM(){
 
 
 
+connect_timeout=3
+max_timeout=4
 
 
 TEMP=`getopt -o c:m: --long connect-timeout:,max-timeout: -n 'example.bash' -- "$@"`
