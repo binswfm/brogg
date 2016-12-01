@@ -1,17 +1,4 @@
 #!/bin/bash
-findHOST(){
-    echo $1|tr "/" " "|awk '{print $2}'
-}
-isNUM(){
-    if [ "$1" -gt 0 ] 2>/dev/null ;then  
-        return 0
-    else  
-        echo 'no.'  
-    fi  
-}
-
-
-
 connect_timeout=3
 max_timeout=4
 
