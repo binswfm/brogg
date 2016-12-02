@@ -42,7 +42,6 @@ rm -rf .times
 list=($(awk '{print $1}' list)) 
 for url  in ${list[@]}
 do
-    host=$(findHOST "$url")
     speed=$(curl -s -m $max_timeout --connect-timeout $connect_timeout -w %{time_total}\\n -o /dev/null $url)
     if [ $? -eq 0 ]
     then
